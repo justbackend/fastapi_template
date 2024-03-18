@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm.session import Session
-from database import database
+from database import get_db
 from fastapi import WebSocket
 
 from models.users import Users
@@ -42,7 +42,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-# async def get_current_user_socket(websocket: WebSocket, db: Session = Depends(database)):
+# async def get_current_user_socket(websocket: WebSocket, db: Session = get_db):
 #     credentials_exception = HTTPException(
 #         status_code=status.HTTP_401_UNAUTHORIZED,
 #         detail="Could not validate credentials",
@@ -63,7 +63,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 #     return user
 
 
-def get_current_user(db: Session = Depends(database), token: str = Depends(oauth2_scheme)):
+def get_current_user(db: Session = get_db, token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -88,7 +88,7 @@ async def get_current_active_user(current_user: CreateUser = Depends(get_current
 
 
 @login_router.post("/token")
-async def login_for_access_token(db: Session = Depends(database), form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(db: Session = get_db, form_data: OAuth2PasswordRequestForm = Depends()):
     user = db.query(Users).where(Users.username == form_data.username).first()
     if user:
         is_validate_password = pwd_context.verify(form_data.password, user.password_hash)
@@ -109,7 +109,7 @@ async def login_for_access_token(db: Session = Depends(database), form_data: OAu
     db.query(Users).filter(Users.id == user.id).update({
         Users.token: access_token
     })
-    db.commit()
+
     return {'id': user.id, "access_token": access_token, "token_type":
             "bearer","name": user.username}
 
@@ -126,7 +126,7 @@ def token_has_expired(token: str) -> bool:
 
 @login_router.post("/refresh_token", response_model=Token)
 async def refresh_token(
-    db: Session = Depends(database),
+    db: Session = get_db,
     token: str = None
 ):
     user = db.query(Users).where(Users.token == token).first()
@@ -150,7 +150,6 @@ async def refresh_token(
     db.query(Users).filter(Users.id == user.id).update({
         Users.token: access_token
     })
-    db.commit()
 
     return {
         'id': user.id,

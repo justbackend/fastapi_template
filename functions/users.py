@@ -8,4 +8,3 @@ def register(form, db):
         password_hash=get_password_hash(form.password_hash),
     )
     db.add(new_user)
-    db.commit()
