@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Annotated
 from fastapi import Depends, APIRouter, HTTPException, status, Query, WebSocketException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
@@ -156,3 +156,5 @@ async def refresh_token(
         "access_token": access_token,
         "token_type": "bearer"
     }
+
+CurrentUser = Annotated[Users, Depends(get_current_user)]
