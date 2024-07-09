@@ -13,12 +13,9 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
-def __with_db(request: Request):
+def get_db():
     db = SessionLocal()
-
-    request.state.db = db
-
-    yield db
-
-
-get_db = Depends(__with_db)
+    try:
+        yield db
+    finally:
+        db.close()

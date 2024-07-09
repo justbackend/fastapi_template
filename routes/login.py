@@ -6,7 +6,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm.session import Session
 from database import get_db
-from fastapi import WebSocket
 
 from models.users import Users
 from schemas.tokens import TokenData, Token
@@ -42,7 +41,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-# async def get_current_user_socket(websocket: WebSocket, db: Session = get_db):
+# async def get_current_user_socket(websocket: WebSocket, db: Session = Depends(get_db)):
 #     credentials_exception = HTTPException(
 #         status_code=status.HTTP_401_UNAUTHORIZED,
 #         detail="Could not validate credentials",
@@ -63,7 +62,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 #     return user
 
 
-def get_current_user(db: Session = get_db, token: str = Depends(oauth2_scheme)):
+def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -88,7 +87,7 @@ async def get_current_active_user(current_user: CreateUser = Depends(get_current
 
 
 @login_router.post("/token")
-async def login_for_access_token(db: Session = get_db, form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
     user = db.query(Users).where(Users.username == form_data.username).first()
     if user:
         is_validate_password = pwd_context.verify(form_data.password, user.password_hash)
@@ -111,7 +110,7 @@ async def login_for_access_token(db: Session = get_db, form_data: OAuth2Password
     })
 
     return {'id': user.id, "access_token": access_token, "token_type":
-            "bearer","name": user.username}
+            "bearer", "name": user.username}
 
 
 def token_has_expired(token: str) -> bool:
@@ -126,7 +125,7 @@ def token_has_expired(token: str) -> bool:
 
 @login_router.post("/refresh_token", response_model=Token)
 async def refresh_token(
-    db: Session = get_db,
+    db: Session = Depends(get_db),
     token: str = None
 ):
     user = db.query(Users).where(Users.token == token).first()
@@ -156,5 +155,3 @@ async def refresh_token(
         "access_token": access_token,
         "token_type": "bearer"
     }
-
-CurrentUser = Annotated[Users, Depends(get_current_user)]
