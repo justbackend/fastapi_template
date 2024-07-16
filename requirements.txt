@@ -7,3 +7,5 @@ passlib[bcrypt]
 python-jose[cryptography]
 python-multipart
 pymysql
+sqlmodel
+psycopg2-binary
