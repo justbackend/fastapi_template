@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
+from app.auth import get_password_hash, create_access_token
 from app.user.models.user import User
-from app.user.routes.login import get_password_hash, create_access_token
 
 
 def register(form, db):
