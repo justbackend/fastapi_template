@@ -17,5 +17,8 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
+    except Exception as error:
+        db.rollback()
+        raise error
     finally:
         db.close()

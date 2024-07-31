@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from database import Base, engine
-from middlewares import handle_integrity_errors
-from routes import login, users
+from .database import Base, engine
+from app.utils.middlewares import handle_integrity_errors
+from .user.routes import login, users
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
@@ -18,4 +18,4 @@ app.add_middleware(
     allow_headers=["*"],)
 
 app.include_router(login.login_router)
-app.include_router(users.users_router)
+app.include_router(users.user_router)
