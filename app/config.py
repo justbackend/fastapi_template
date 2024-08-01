@@ -1,5 +1,5 @@
 import os
-from pydantic import PostgresDsn, computed_field
+from pydantic import PostgresDsn, computed_field, RedisDsn
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings
 
@@ -9,9 +9,9 @@ class Settings(BaseSettings):
     # jwt_algorithm: str = os.getenv("JWT_ALGORITHM")
     # jwt_expire: int = os.getenv("JWT_EXPIRE")
 
-    # REDIS_HOST: str
-    # REDIS_PORT: int
-    # REDIS_DB: str
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: str
 
     SECRET_KEY: str
     JWT_ALGORITHM: str
@@ -22,27 +22,27 @@ class Settings(BaseSettings):
     # POSTGRES_HOST: str
     # POSTGRES_DB: str
 
-    # @computed_field
-    # @property
-    # def redis_url(self) -> RedisDsn:
-    #     """
-    #     This is a computed field that generates a RedisDsn URL for redis-py.
-    #
-    #     The URL is built using the MultiHostUrl.build method, which takes the following parameters:
-    #     - scheme: The scheme of the URL. In this case, it is "redis".
-    #     - host: The host of the Redis database, retrieved from the REDIS_HOST environment variable.
-    #     - port: The port of the Redis database, retrieved from the REDIS_PORT environment variable.
-    #     - path: The path of the Redis database, retrieved from the REDIS_DB environment variable.
-    #
-    #     Returns:
-    #         RedisDsn: The constructed RedisDsn URL for redis-py.
-    #     """
-    #     return MultiHostUrl.build(
-    #         scheme="redis",
-    #         host=self.REDIS_HOST,
-    #         port=self.REDIS_PORT,
-    #         path=self.REDIS_DB,
-    #     )
+    @computed_field
+    @property
+    def redis_url(self) -> RedisDsn:
+        """
+        This is a computed field that generates a RedisDsn URL for redis-py.
+
+        The URL is built using the MultiHostUrl.build method, which takes the following parameters:
+        - scheme: The scheme of the URL. In this case, it is "redis".
+        - host: The host of the Redis database, retrieved from the REDIS_HOST environment variable.
+        - port: The port of the Redis database, retrieved from the REDIS_PORT environment variable.
+        - path: The path of the Redis database, retrieved from the REDIS_DB environment variable.
+
+        Returns:
+            RedisDsn: The constructed RedisDsn URL for redis-py.
+        """
+        return MultiHostUrl.build(
+            scheme="redis",
+            host=self.REDIS_HOST,
+            port=self.REDIS_PORT,
+            path=self.REDIS_DB,
+        )
 
     # @computed_field
     # @property

@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 
@@ -18,7 +18,7 @@ user_router = APIRouter(
 
 
 @user_router.post("/register")
-def register_endpoint(form: UserCreate, db: SessionDep):
+async def register_endpoint(request: Request, form: UserCreate, db: SessionDep):
     access_token = register(form, db)
     return {"access_token": access_token, "token_type": "bearer"}
 
