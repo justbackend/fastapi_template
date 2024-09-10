@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 
 from app.database import get_db
-from app.user.models.user import User
+from app.user.models import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

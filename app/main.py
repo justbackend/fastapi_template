@@ -4,11 +4,13 @@ from aiocache.serializers import PickleSerializer
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from sqladmin import Admin
 
 from .database import Base, engine
+from .service.admin_panel import admin_panel_apply
 from .service.redis_service import get_redis, get_cache
 from .utils.middlewares import handle_integrity_errors
-from .user.routes import users
+from app.user.routes import user_router
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 Base.metadata.create_all(bind=engine)
@@ -38,4 +40,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],)
 
-app.include_router(users.user_router)
+app.include_router(user_router)
+
+admin = Admin(app, Base)
+
+admin_panel_apply(admin)
